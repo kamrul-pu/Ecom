@@ -6,8 +6,11 @@ class CustomerAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name','price','digital']
+
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['order','product','quantity']
 admin.site.register(models.Customer,CustomerAdmin)
 admin.site.register(models.Order)
 admin.site.register(models.Product,ProductAdmin)
-admin.site.register(models.OrderItem)
+admin.site.register(models.OrderItem,OrderItemAdmin)
 admin.site.register(models.ShippingAddress)
