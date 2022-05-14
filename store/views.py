@@ -24,11 +24,13 @@ def cart(request):
         customer = request.user.customer
         order,created = models.Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all() #needed in my project for getting transaction
+        cartItems = order.get_cart_items
     else:
         order = {'get_cart_total':0,'get_cart_items':0}
         items = []
+        cartItems = order['get_cart_items']
     
-    context = {'items':items,'order':order}
+    context = {'items':items,'order':order,'cartItems':cartItems}
     return render(request,'store/cart.html',context=context)
 
 def checkout(request):
@@ -36,11 +38,13 @@ def checkout(request):
         customer = request.user.customer
         order,created = models.Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all() #needed in my project for getting transaction
+        cartItems = order.get_cart_items
     else:
         order = {'get_cart_total':0,'get_cart_items':0}
         items = []
+        cartItems = order['get_cart_items']
     
-    context = {'items':items,'order':order}
+    context = {'items':items,'order':order,'cartItems':cartItems}
     return render(request,'store/checkout.html',context=context)
 
 def updateItem(request):
