@@ -1,11 +1,21 @@
 from django.shortcuts import render
 from . import models
 from django.http import JsonResponse
+import json
 # Create your views here.
 
 def store(request):
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order,created = models.Order.objects.get_or_create(customer=customer,complete=False)
+        items = order.orderitem_set.all() #needed in my project for getting transaction
+        cartItems = order.get_cart_items
+    else:
+        order = {'get_cart_total':0,'get_cart_items':0}
+        items = []
+        cartItems = order['get_cart_items']
     products = models.Product.objects.all()
-    context = {'products':products}
+    context = {'products':products,'cartItems':cartItems}
     return render(request,'store/store.html',context=context)
 
 
@@ -34,4 +44,24 @@ def checkout(request):
     return render(request,'store/checkout.html',context=context)
 
 def updateItem(request):
-    return JsonResponse('item Was added',safe=False)
+    data = json.loads(request.body)
+    productId = data['productId']
+    action = data['action']
+    print('productId:',productId)
+    print('action:',action)
+    customer = request.user.customer
+    product = models.Product.objects.get(id=productId)
+    order,created = models.Order.objects.get_or_create(customer=customer,complete=False)
+
+    orderItem,created = models.OrderItem.objects.get_or_create(order=order,product=product)
+
+    if action =='add':
+        orderItem.quantity = (orderItem.quantity + 1)
+    elif action == 'remove':
+        orderItem.quantity = (orderItem.quantity - 1)
+    orderItem.save()
+
+    if orderItem.quantity <=0:
+        orderItem.delete()
+    
+    return JsonResponse('item Was added from backend',safe=False)
